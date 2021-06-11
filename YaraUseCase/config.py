@@ -15,6 +15,7 @@ class Config:
     password = os.environ.get('POSTGRES_PASSWORD')
     db = os.environ.get('POSTGRES_DB')
     host = os.environ.get('DB_SERVICE')
+    port = os.environ.get('DB_PORT')
     SQLALCHEMY_DATABASE_URI = (os.environ.get('DATABASE_URL')
                                or
                         f"postgresql://{user}:{password}@{host}:{host}/{db}")
@@ -29,6 +30,7 @@ class TestConfig:
     password = os.environ.get('POSTGRES_PASSWORD')
     db = os.environ.get('POSTGRES_DB')
     host = os.environ.get('DB_SERVICE')
+    port = os.environ.get('DB_PORT')
     TESTING = True
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_DATABASE_URI = (os.environ.get('DATABASE_URL')
