@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: dockerfile
+        command: 'python main.py'
+        ports:
+            - 8001:5000
+        volumes: 
+            - .:/app
+        env_file: 
+            - .env
+        depends_on: 
+            - db
