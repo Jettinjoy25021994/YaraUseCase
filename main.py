@@ -1,9 +1,8 @@
 """
+main module that runs the flask app
+
 Created By: Jettin Joy
 Created on: 06/12/2021
-
-
-main module that runs the flask app
 """
 
 
