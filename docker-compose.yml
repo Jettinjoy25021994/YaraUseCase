@@ -3,9 +3,9 @@ version: '3.8'
 services:
     backend:
         build:
-            context: .
+            context: ./api1
             dockerfile: dockerfile
-        command: 'python main.py'
+        command: 'python api1/main.py'
         ports:
             - 8001:5000
         volumes:
