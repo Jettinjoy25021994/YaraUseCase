@@ -25,6 +25,7 @@ def index():
     )
     return response
 
+
 @app.route("/create", methods=['POST'])
 def create_pipeline_steps():
     """Create a CircleCI configuration for the specified repo
@@ -46,6 +47,6 @@ def create_pipeline_steps():
             status = jsonify({"Status": "Created data successfully"}), 201
         except (KeyError, SQLAlchemyError) as err:
             db.session.rollback()
-            status =  jsonify({"Status": "Operation cannot be completed"}), 500
+            status = jsonify({"Status": "Operation cannot be completed"}), 500
             print(str(err))
     return status

@@ -7,14 +7,14 @@ services:
             dockerfile: dockerfile
         command: 'python main.py'
         ports:
-            - 8001:5000
-        volumes: 
-            - .:/app
+            - 8001: 5000
+        volumes:
+            - .: /app
         env_file: 
             - .env
-        depends_on: 
+        depends_on:
             - db
-    
+
     db:
         image: postgres:latest
         restart: always
@@ -22,5 +22,5 @@ services:
             - 3306:3306
         volumes:
             - ".db:/var/lib/postgresql/data"
-        env_file: 
+        env_file:
             - .env

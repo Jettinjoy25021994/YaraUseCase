@@ -22,6 +22,7 @@ class Operation(Enum):
     update = "UPDATE"
     delete = "DELETE"
 
+
 class StatConf(Enum):
     """Enums to hold constant conf formats"""
     date_format = '%Y-%m-%d %H:%M:%S'

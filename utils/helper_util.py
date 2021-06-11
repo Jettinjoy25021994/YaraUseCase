@@ -4,9 +4,12 @@ A helper module that contains various helper functions
 Created By: Jettin Joy
 Created on: 06/12/2021
 """
+
+
 import uuid
 from datetime import datetime
 from utils.enums import Operation, Status, StatConf
+
 
 def format_create_config(request_data: dict):
     """Creates formatted data to be posted into API
