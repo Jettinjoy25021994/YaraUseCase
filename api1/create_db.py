@@ -10,3 +10,4 @@ from YaraUseCase import db
 
 
 db.create_all()
+print("created all db")

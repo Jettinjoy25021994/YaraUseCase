@@ -5,22 +5,52 @@ services:
         build:
             context: ./api1
             dockerfile: dockerfile
-        command: 'python api1/main.py'
+        command: bash -c "python api1/main.py && python api1/create_db.py"
+    
         ports:
             - 8001:5000
+        networks: 
+            - backend_net
         volumes:
             - .:/app
+        links:
+            - db:db
         env_file: 
             - .env
         depends_on:
-            - db
-
+           - db
+    
     db:
         image: postgres:latest
         restart: always
         ports:
             - 3306:3306
+        networks: 
+            - backend_net
         volumes:
-            - ".db:/var/lib/postgresql/data"
+            - .db_data:/var/lib/postgresql/data"
         env_file:
             - .env
+    scheduler:
+        build:
+            context: ./scheduler
+            dockerfile: dockerfile-sc
+        ports:
+            - 8002:8005
+        volumes:
+            - .:/schedule_batch
+        networks: 
+            - backend_net
+        links:
+            - db:db
+        env_file: 
+            - .env
+        depends_on: 
+            - db
+            - backend
+volumes: 
+    db-data:
+    
+networks:
+    backend_net:
+        driver: "bridge"
