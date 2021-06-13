@@ -14,6 +14,10 @@ class Status(Enum):
     complaint_status = "COMPLAINT"
     non_complaint_status = "NON-COMPLAINT"
     pending_status = "PENDING"
+    verified_status_no = "NO"
+    verified_status_yes = "YES"
+    outdated_status_no = "NO"
+    outdated_status_yes = "YES"
 
 
 class Operation(Enum):
