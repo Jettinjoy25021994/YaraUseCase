@@ -29,8 +29,20 @@ class YaraUseCaseAPI(db.Model):
     repo = db.Column(db.String(100), nullable=False)
     pipeline_steps = db.Column(JSON, nullable=False)
     status = db.Column(db.String(20), nullable=False)
-    operation = db.Column(db.String(100), nullable=False)
     created_by = db.Column(db.String(100), nullable=False)
     created_date_time = db.Column(db.String(100), nullable=False)
     updated_by = db.Column(db.String(100), nullable=False)
     updated_date_time = db.Column(db.DateTime, nullable=False)
+    verified = db.Column(db.String(5), nullable=False)
+    outdated = db.Column(db.String(5), nullable=False)
+
+
+class Steps(db.Model):
+    """
+    Table to store all the mandatory steps request
+    id : Primary Key (String)
+    steps : A list of steps (JSON)
+    """
+    id = db.Column(db.String(64), primary_key=True, autoincrement=False)
+    created_date_time = db.Column(db.String(100), nullable=False)
+    mand_steps = db.Column(JSON, nullable=False)
