@@ -191,7 +191,7 @@ class ScheduleGitOps:
                 status = await request.json()
                 print(status)
 
-import time
+
 def main():
     s = ScheduleGitOps()
     asyncio.run(s.get_config_data())
