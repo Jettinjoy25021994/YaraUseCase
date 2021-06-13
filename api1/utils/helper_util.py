@@ -24,7 +24,6 @@ def format_create_config(request_data: dict):
         "repo": request_data.get('repository'),
         "pipeline_steps": request_data.get('config'),
         "status": Status.pending_status.value,
-        "operation": Operation.create.value,
         "created_by": request_data.get('user'),
         "created_date_time": datetime.now().strftime(
             StatConf.date_format.value
@@ -32,6 +31,8 @@ def format_create_config(request_data: dict):
         "updated_by": request_data.get('user'),
         "updated_date_time": datetime.now().strftime(
             StatConf.date_format.value
-            )
+            ),
+        "verified": Status.verified_status_no.value,
+        "outdated": Status.outdated_status_no.value
     }
     return formatted_data
