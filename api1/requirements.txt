@@ -9,4 +9,6 @@ psycopg2
 aiohttp
 schedule
 pyyaml
+flask-marshmallow
+marshmallow-sqlalchemy
 pygithub
