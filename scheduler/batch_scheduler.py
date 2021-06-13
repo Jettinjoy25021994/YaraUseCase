@@ -8,8 +8,8 @@ Created on: 06/12/2021
 import asyncio
 import base64
 import os
+import json
 import requests
-from requests.api import post
 import yaml
 import aiohttp
 import schedule
@@ -22,18 +22,17 @@ from requests.exceptions import ConnectionError
 class ScheduleGitOps:
     """
     A scheduler that periodically fetches CircleCI config file
-    Attriutes:
-        period (int): schedule task every "period"
     """
-    def __init__(self, period):
+    def __init__(self):
         """Initialze the scheduler class"""
-        self.period = period
         self.all_conf_contents = []
         self.org_name = self._get_org_name()
-        self.org_cred = os.environ.get(self.org_name, '') or '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'
+        self.org_cred = os.environ.get(self.org_name, '')
         self.enterprise_host = os.environ.get('GITHOSTNAME', '')
         self.g_info = self._get_github_info()
         self.repos = self._get_repositories()
+        self.all_repo_conf = self.retrieve_all_repo_conf()
+        self.mand_steps = self._get_all_mand_steps()
 
     def _get_org_name(self):
         """
@@ -81,6 +80,57 @@ class ScheduleGitOps:
             repos = list()
         return repos
 
+    def retrieve_all_repo_conf(self):
+        """Retrieve all the repo which has status pending, 
+            not outdated and not verified
+        """
+        all_repo_conf_details = []
+        try:
+            api_url = 'http://backend:5000/retrieve/all'
+            response = requests.get(api_url)
+            all_repo_conf_details = response.json().get('All Repo details', [])
+        except (AttributeError, KeyError, ConnectionError) as e_rr:
+            print(str(e_rr))
+        return all_repo_conf_details
+
+    def _get_all_mand_steps(self):
+        """Get the mandatory steps for checking"""
+        steps = []
+        try:
+            url = 'http://backend:5000/getsteps'
+            response = requests.get(url)
+            steps = response.json().get('MandSteps')
+        except (AttributeError, KeyError, ConnectionError) as e_rr:
+            print(str(e_rr))
+        return steps
+
+    def is_complaint(self, conf):
+        """
+        checks whether the repo is complaint or not
+        """
+        status = "PENDING"
+        if not self.mand_steps:
+            return status
+        if not conf:
+            status = "NON-COMPLAINT"
+        for step in self.mand_steps:
+            if step not in conf.get('jobs', {}):
+                status = "NON-COMPLAINT"
+                return status
+        status = "COMPLAINT"
+        return status
+
+    def get_report(self):
+        """Get the report for all the repo"""
+        report = []
+        url = 'http://backend:5000/report'
+        try:
+            response = requests.get(url)
+            report = response.json()
+        except (AttributeError, KeyError, ConnectionError) as e_rr:
+            print(str(e_rr))
+        return report
+     
     async def get_config_data(self):
             """Get the configuration data for CircleCI pipeline"""
             async with aiohttp.ClientSession() as session:
@@ -94,34 +144,61 @@ class ScheduleGitOps:
             """Get the config cile content"""
             conf_content = {}
             headers = {'Authorization': self.org_cred}
-            url = f"https://api.github.com/repos/{self.org_name}/{repo}/contents/.env"
-            print(url)
+            url = f"https://api.github.com/repos/{self.org_name}/{repo}/contents/.circleci/config.yml"
             async with session.get(url, headers=headers) as response:
                 try:
-                    print("status", response.status)
                     result_data = await response.json()
                     content = result_data.get('content')
                     encoded_content = base64.b64decode(content)
                     content_data = encoded_content.decode()
-                    print("content", content_data)
                 except (AttributeError, KeyError, TypeError) as e_rr:
                    content_data = {}
-            #return content_data
             api_url = 'http://backend:5000/create'
             post_data = {
                 "organization": self.org_name,
                 "repository": repo,
-                "config": content_data,
+                "config": yaml.load(content_data) if content_data else {},
                 "user": "user"
             }
-            if post_data.get('config',{}):
-                async with session.post(api_url, json = post_data) as request:
+            async with session.post(api_url, json = post_data) as request:
+                try:
                     print(request.status)
+                except AttributeError as e_rr:
+                    print(str(e_rr))
 
+    async def analyze_repo_conf(self):
+           """
+           For all the repos update the status as complaint / non-complaint
+           """
+           async with aiohttp.ClientSession() as session:
+                tasks = []
+                for repo_conf in self.all_repo_conf:
+                    task = asyncio.ensure_future(self.set_repo_conf_status(repo_conf.get('repository', ''),
+                                                                                repo_conf.get('conf',{}),
+                                                                                session))
+                    tasks.append(task)
+                await asyncio.gather(*tasks)
 
+    async def set_repo_conf_status(self, repo, repo_conf, session):
+            """Get the config cile content"""
+            conf_content = {}
+            complaint_status = self.is_complaint(repo_conf)
+            print('status',complaint_status)
+            api_url = f'http://backend:5000/statupdate/{repo}'
+            headers = {'Content-Type': 'application/json'}
+            patch_data = json.dumps({"Status": complaint_status, 'user': "user"}).encode('utf-8')
+            async with session.patch(api_url, data = patch_data, headers=headers) as request:
+                status = await request.json()
+                print(status)
+
+import time
 def main():
-    s = ScheduleGitOps(1)
+    s = ScheduleGitOps()
     asyncio.run(s.get_config_data())
-schedule.every(5).seconds.do(main)
+    asyncio.run(s.analyze_repo_conf())
+    print(s.get_report())
+
+schedule_interval = int(os.environ.get('INTERVAL',900))
+schedule.every(schedule_interval).seconds.do(main)
 while True:
    schedule.run_pending()
