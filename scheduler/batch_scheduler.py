@@ -125,11 +125,11 @@ class ScheduleGitOps:
         """Get the report for all the repo"""
         report = []
         url = 'http://backend:5000/report'
+        new_report = []
         try:
             response = requests.get(url)
             report = response.json().get('Repo Report')
             seen = set()
-            new_report = []
             for r in report:
                 t = tuple(r.items())
                 if t not in seen:
@@ -137,7 +137,7 @@ class ScheduleGitOps:
                     new_report.append(r)
         except (AttributeError, KeyError, ConnectionError) as e_rr:
             print(str(e_rr))
-        return report
+        return new_report
      
     async def get_config_data(self):
             """Get the configuration data for CircleCI pipeline"""
