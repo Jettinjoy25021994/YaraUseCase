@@ -13,6 +13,7 @@ import requests
 import yaml
 import aiohttp
 import schedule
+from collections import OrderedDict
 from github import Github
 from github.GithubException import BadCredentialsException
 from requests.exceptions import ConnectionError
@@ -126,7 +127,14 @@ class ScheduleGitOps:
         url = 'http://backend:5000/report'
         try:
             response = requests.get(url)
-            report = response.json()
+            report = response.json().get('Repo Report')
+            seen = set()
+            new_report = []
+            for r in report:
+                t = tuple(r.items())
+                if t not in seen:
+                    seen.add(t)
+                    new_report.append(r)
         except (AttributeError, KeyError, ConnectionError) as e_rr:
             print(str(e_rr))
         return report
@@ -196,7 +204,7 @@ def main():
     s = ScheduleGitOps()
     asyncio.run(s.get_config_data())
     asyncio.run(s.analyze_repo_conf())
-    print(s.get_report())
+    print("Report", s.get_report())
 
 schedule_interval = int(os.environ.get('INTERVAL',900))
 schedule.every(schedule_interval).seconds.do(main)
