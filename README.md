@@ -67,7 +67,7 @@ Steps for running locally:
 1) Clone the repo
 
 
-2) Keep your organization name in the organization.yml file in the specified format
+2) Keep your organization name in the organization.yml  under scheduler directory sfile in the specified format
 
 
 
