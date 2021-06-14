@@ -89,8 +89,14 @@ Steps for running locally:
 
 
 
+5) check http://localhost:8001 to see if service is running
+
+
 
 NB: To generate report do a post request to  /steps with all the mandatory pipeline steps to be checked
+
+
+    To check the report hit /report with get request
 
 
 
@@ -104,3 +110,6 @@ Future Enhancement:
 
 
 2) Remove inconsistencies in report
+
+
+3) Automate emailing of the report
