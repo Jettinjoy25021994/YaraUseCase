@@ -88,7 +88,7 @@ Steps for running locally:
 
 
 
-NB: To generate report do a post request to/steps with all the mandatory pipeline steps to be checked
+NB: To generate report do a post request to  /steps with all the mandatory pipeline steps to be checked
 
 
 
