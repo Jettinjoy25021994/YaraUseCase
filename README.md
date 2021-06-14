@@ -2,7 +2,7 @@ Endpoints:
 
 
 
-/ : Checks whether the API is Up and Running
+GET / : Checks whether the API is Up and Running
 
 
 POST /create : to create a pipeline step
