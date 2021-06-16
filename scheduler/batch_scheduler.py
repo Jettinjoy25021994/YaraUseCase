@@ -198,13 +198,16 @@ class ScheduleGitOps:
             async with session.patch(api_url, data = patch_data, headers=headers) as request:
                 status = await request.json()
                 print(status)
+    async def run(self):
+            """helper method to run the main methods"""
+            await self.get_config_data()
+            await self.analyze_repo_conf()
 
 
 def main():
     s = ScheduleGitOps()
-    asyncio.run(s.get_config_data())
-    asyncio.run(s.analyze_repo_conf())
-    print("Report", s.get_report())
+    asyncio.run(s.run())
+    print(s.get_report())
 
 schedule_interval = int(os.environ.get('INTERVAL',900))
 schedule.every(schedule_interval).seconds.do(main)
